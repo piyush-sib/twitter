@@ -10,7 +10,10 @@ import (
 
 func main() {
 	// Parse application flags
-	flg := getFlags()
+	flg, err := getFlags()
+	if err != nil {
+		panic(err)
+	}
 
 	// Define app information
 	app := &models.Application{

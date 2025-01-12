@@ -1,0 +1,212 @@
+{
+	"info": {
+		"_postman_id": "350365b1-313f-4dc7-80f5-766821a55384",
+		"name": "Piyush twitter",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14701995",
+		"_collection_link": "https://sendmail-8704.postman.co/workspace/New-Team-Workspace~a72380be-ec06-4a4e-8672-2d718c45465b/collection/14701995-350365b1-313f-4dc7-80f5-766821a55384?action=share&source=collection_link&creator=14701995"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"piyush2@gmail.com\",\n    \"password\":\"hello\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/login",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"login"
+					]
+				},
+				"description": "### API Documentation: `Login`\n\n#### Endpoint\n\n```\nPOST /login\n\n ```\n\n#### Description\n\nAuthenticates a user and returns a JWT token.\n\n#### Request Headers\n\n- `Content-Type`: `application/json`\n    \n\n#### Request Body\n\n- **Body**: A JSON object containing the user credentials.\n    \n    - { \"email\": \"test@example.com\", \"password\": \"password\"}\n        \n\n#### Response\n\n- **Status Code: 200 OK**\n    \n    - **Body**: A JSON object containing the JWT token.\n        \n    - **Content-Type**: `application/json`\n        \n    - { \"token\": \"jwt_token\"}\n        \n- **Status Code: 405 Method Not Allowed**\n    \n    - **Body**: An error message indicating that the request method is invalid.\n        \n    - **Content-Type**: `text/plain`\n        \n    - invalid request method\n        \n- **Status Code: 400 Bad Request**\n    \n    - **Body**: An error message indicating that the request body is invalid.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Invalid request body\n        \n- **Status Code: 401 Unauthorized**\n    \n    - **Body**: An error message indicating that the email or password is invalid.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Invalid email or password\n        \n- **Status Code: 500 Internal Server Error**\n    \n    - **Body**: An error message indicating that the server failed to process the request.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Failed to generate token\n        \n\n#### Error Handling\n\n- If the request method is not `POST`, the server responds with a `405 Method Not Allowed` status.\n    \n- If the request body is invalid, the server responds with a `400 Bad Request` status.\n    \n- If the email or password is invalid, the server responds with a `401 Unauthorized` status.\n    \n- If there is an error generating the token, the server responds with a `500 Internal Server Error` status.\n    \n\n#### Example Request\n\n```\nPOST /login HTTP/1.1\nHost: api.example.com\nContent-Type: application/json\n{\n  \"email\": \"test@example.com\",\n  \"password\": \"password\"\n}\n\n ```\n\n#### Example Response\n\n```\nHTTP/1.1 200 OK\nContent-Type: application/json\n{\n  \"token\": \"jwt_token\"\n}\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "Register",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY3NTk4NjcsIm5hbWUiOiJwaXl1c2giLCJ1c2VyX2lkIjoxfQ.HKpx_1GvJSME4pbthtUKGeAFlLctXQE3UQvSIuAMTqI",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\":\"piyush 2\",\n    \"email\":\"piyush2@gmail.com\",\n    \"password\":\"hello\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/register",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"register"
+					]
+				},
+				"description": "### API Documentation: `Register`\n\n#### Endpoint\n\n```\nPOST /register\n\n ```\n\n#### Description\n\nRegisters a new user.\n\n#### Request Headers\n\n- `Content-Type`: `application/json`\n    \n\n#### Request Body\n\n- **Body**: A JSON object containing the user data.\n    \n    - { \"name\": \"Test User\", \"email\": \"[test@example.com](https://mailto:test@example.com)\", \"password\": \"password\"}\n        \n\n#### Response\n\n- **Status Code: 201 Created**\n    \n    - **Body**: A JSON object with a success message.\n        \n    - **Content-Type**: `application/json`\n        \n    - { \"message\": \"User registered successfully\"}\n        \n- **Status Code: 405 Method Not Allowed**\n    \n    - **Body**: An error message indicating that the request method is invalid.\n        \n    - **Content-Type**: `text/plain`\n        \n    - invalid request method\n        \n- **Status Code: 400 Bad Request**\n    \n    - **Body**: An error message indicating that the request body is invalid.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Invalid request body\n        \n- **Status Code: 500 Internal Server Error**\n    \n    - **Body**: An error message indicating that the server failed to process the request.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Failed to hash passwordorFailed to create user\n        \n\n#### Error Handling\n\n- If the request method is not `POST`, the server responds with a `405 Method Not Allowed` status.\n    \n- If the request body is invalid, the server responds with a `400 Bad Request` status.\n    \n- If there is an error hashing the password or creating the user, the server responds with a `500 Internal Server Error` status.\n    \n\n#### Example Request\n\n```\nPOST /register HTTP/1.1\nHost: api.example.com\nContent-Type: application/json\n{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password\"\n}\n\n ```\n\n#### Example Response\n\n```\nHTTP/1.1 201 Created\nContent-Type: application/json\n{\n  \"message\": \"User registered successfully\"\n}\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "Tweet",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY3NjM1NzMsIm5hbWUiOiJwaXl1c2ggMiIsInVzZXJfaWQiOjN9.TXJ6lpxwFmbm6j6GG6VAbaK8KmC_y8StA5iUXouEmWo",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"description\":\"this is a tweet from 3rd user\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/tweet",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"tweet"
+					]
+				},
+				"description": "### API Documentation: `PostTweet`\n\n#### Endpoint\n\n```\nPOST /tweets\n\n ```\n\n#### Description\n\nCreates a new tweet for the authenticated user.\n\n#### Request Headers\n\n- `Authorization`: Bearer token for user authentication.\n    \n- `Content-Type`: `application/json`\n    \n\n#### Request Body\n\n- **Body**: A JSON object containing the tweet data.\n    \n    - { \"description\": \"This is a new tweet\"}\n        \n\n#### Response\n\n- **Status Code: 201 Created**\n    \n    - **Body**: A JSON object representing the created tweet.\n        \n    - **Content-Type**: `application/json`\n        \n    - { \"id\": 1, \"description\": \"This is a new tweet\", \"created_at\": \"2025-01-12T20:24:00Z\"}\n        \n- **Status Code: 405 Method Not Allowed**\n    \n    - **Body**: An error message indicating that the request method is invalid.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Invalid request method\n        \n- **Status Code: 400 Bad Request**\n    \n    - **Body**: An error message indicating that the request body is invalid.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Invalid request body\n        \n- **Status Code: 500 Internal Server Error**\n    \n    - **Body**: An error message indicating that the server failed to process the request.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Failed to retrieve user from contextorFailed to post tweet\n        \n\n#### Error Handling\n\n- If the request method is not `POST`, the server responds with a `405 Method Not Allowed` status.\n    \n- If the user cannot be retrieved from the context, the server responds with a `500 Internal Server Error` status.\n    \n- If the request body is invalid, the server responds with a `400 Bad Request` status.\n    \n- If there is an error posting the tweet, the server responds with a `500 Internal Server Error` status.\n    \n\n#### Example Request\n\n```\nPOST /tweets HTTP/1.1\nHost: api.example.com\nAuthorization: Bearer <token>\nContent-Type: application/json\n{\n  \"description\": \"This is a new tweet\"\n}\n\n ```\n\n#### Example Response\n\n```\nHTTP/1.1 201 Created\nContent-Type: application/json\n{\n  \"id\": 1,\n  \"description\": \"This is a new tweet\",\n  \"created_at\": \"2025-01-12T20:24:00Z\"\n}\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "Get all tweets",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY3NjI0MTAsIm5hbWUiOiJwaXl1c2giLCJ1c2VyX2lkIjoxfQ.dIhH_0hwx-XCRNU-PoF5_F5C9z9Z_8Tm-xTLpP8dkPQ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/get-tweets",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"get-tweets"
+					]
+				},
+				"description": "### API Documentation: `GetTweets`\n\n#### Endpoint\n\n```\nGET /tweets\n\n ```\n\n#### Description\n\nRetrieves the tweets for the authenticated user. The tweets can be sorted in ascending or descending order based on the query parameter.\n\n#### Query Parameters\n\n- `sort` (optional): Specifies the sorting order of the tweets. Acceptable values are:\n    \n    - `asc` (default): Sorts the tweets in ascending order.\n        \n    - `desc`: Sorts the tweets in descending order.\n        \n\n#### Request Headers\n\n- `Authorization`: Bearer token for user authentication.\n    \n\n#### Response\n\n- **Status Code: 201 Created**\n    \n    - **Body**: A JSON array of tweets for the authenticated user.\n        \n    - **Content-Type**: `application/json`\n        \n    - \\[ { \"id\": 1, \"description\": \"Tweet 1\", \"created_at\": \"2025-01-12T20:24:00Z\" }, { \"id\": 2, \"description\": \"Tweet 2\", \"created_at\": \"2025-01-12T20:25:00Z\" }\\]\n        \n- **Status Code: 405 Method Not Allowed**\n    \n    - **Body**: An error message indicating that the request method is invalid.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Invalid request method\n        \n- **Status Code: 500 Internal Server Error**\n    \n    - **Body**: An error message indicating that the server failed to process the request.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Failed to retrieve user from contextorFailed to retrieve user tweets\n        \n\n#### Error Handling\n\n- If the request method is not `GET`, the server responds with a `405 Method Not Allowed` status.\n    \n- If the user cannot be retrieved from the context, the server responds with a `500 Internal Server Error` status.\n    \n- If there is an error retrieving the user tweets, the server responds with a `500 Internal Server Error` status.\n    \n\n#### Example Request\n\n```\nGET /tweets?sort=desc HTTP/1.1\nHost: api.example.com\nAuthorization: Bearer <token>\n\n ```\n\n#### Example Response\n\n```\nHTTP/1.1 201 Created\nContent-Type: application/json\n[\n  {\n    \"id\": 1,\n    \"description\": \"Tweet 1\",\n    \"created_at\": \"2025-01-12T20:24:00Z\"\n  },\n  {\n    \"id\": 2,\n    \"description\": \"Tweet 2\",\n    \"created_at\": \"2025-01-12T20:25:00Z\"\n  }\n]\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "Follow",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY3NjM0NjcsIm5hbWUiOiJwaXl1c2giLCJ1c2VyX2lkIjoxfQ.Eb9jsMa3VFIcHgBLdttSoXQ7wCOlXP3-Z1Nu9sP89kE",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"follower_user_id\": 3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/follow",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"follow"
+					]
+				},
+				"description": "### API Documentation: `FollowUser`\n\n#### Endpoint\n\n```\nPOST /follow\n\n ```\n\n#### Description\n\nAllows the authenticated user to follow another user.\n\n#### Request Headers\n\n- `Authorization`: Bearer token for user authentication.\n    \n- `Content-Type`: `application/json`\n    \n\n#### Request Body\n\n- **Body**: A JSON object containing the ID of the user to follow.\n    \n    - { \"follower_user_id\": 2}\n        \n\n#### Response\n\n- **Status Code: 200 OK**\n    \n    - **Body**: A JSON object with a success message.\n        \n    - **Content-Type**: `application/json`\n        \n    - { \"message\": \"User followed successfully\"}\n        \n- **Status Code: 405 Method Not Allowed**\n    \n    - **Body**: An error message indicating that the request method is invalid.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Invalid request method\n        \n- **Status Code: 400 Bad Request**\n    \n    - **Body**: An error message indicating that the request body is invalid.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Invalid request body\n        \n- **Status Code: 500 Internal Server Error**\n    \n    - **Body**: An error message indicating that the server failed to process the request.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Failed to retrieve user from contextorFailed to follow user\n        \n\n#### Error Handling\n\n- If the request method is not `POST`, the server responds with a `405 Method Not Allowed` status.\n    \n- If the request body is invalid, the server responds with a `400 Bad Request` status.\n    \n- If there is an error retrieving the user from the context or following the user, the server responds with a `500 Internal Server Error` status.\n    \n\n#### Example Request\n\n```\nPOST /follow HTTP/1.1\nHost: api.example.com\nAuthorization: Bearer <token>\nContent-Type: application/json\n{\n  \"follower_user_id\": 2\n}\n\n ```\n\n#### Example Response\n\n```\nHTTP/1.1 200 OK\nContent-Type: application/json\n{\n  \"message\": \"User followed successfully\"\n}\n\n ```"
+			},
+			"response": []
+		},
+		{
+			"name": "Feed",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY3NjM3OTksIm5hbWUiOiJwaXl1c2giLCJ1c2VyX2lkIjoxfQ.FOzpo3XPHy1qqyRu0Z581XHzd9u2GX2io4JHjBrlUOI",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8080/feeds",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"feeds"
+					]
+				},
+				"description": "### API Documentation: `GetFeeds`\n\n#### Endpoint\n\n```\nGET /feeds\n\n ```\n\n#### Description\n\nRetrieves the feeds for the authenticated user. The feeds can be sorted in ascending or descending order based on the query parameter.\n\n#### Query Parameters\n\n- `sort` (optional): Specifies the sorting order of the feeds. Acceptable values are:\n    \n    - `asc` (default): Sorts the feeds in ascending order.\n        \n    - `desc`: Sorts the feeds in descending order.\n        \n\n#### Request Headers\n\n- `Authorization`: Bearer token for user authentication.\n    \n\n#### Response\n\n- **Status Code: 201 Created**\n    \n    - **Body**: A JSON array of tweets for the authenticated user.\n        \n    - **Content-Type**: `application/json`\n        \n    - \\[ { \"id\": 1, \"description\": \"Tweet 1\", \"created_at\": \"2025-01-12T20:24:00Z\" }, { \"id\": 2, \"description\": \"Tweet 2\", \"created_at\": \"2025-01-12T20:25:00Z\" }\\]\n        \n- **Status Code: 405 Method Not Allowed**\n    \n    - **Body**: An error message indicating that the request method is invalid.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Invalid request method\n        \n- **Status Code: 500 Internal Server Error**\n    \n    - **Body**: An error message indicating that the server failed to process the request.\n        \n    - **Content-Type**: `text/plain`\n        \n    - Failed to retrieve user from contextorFailed to get feeds\n        \n\n#### Error Handling\n\n- If the request method is not `GET`, the server responds with a `405 Method Not Allowed` status.\n    \n- If the user cannot be retrieved from the context, the server responds with a `500 Internal Server Error` status.\n    \n- If there is an error retrieving the user feeds, the server responds with a `500 Internal Server Error` status.\n    \n\n#### Example Request\n\n```\nGET /feeds?sort=desc HTTP/1.1\nHost: api.example.com\nAuthorization: Bearer <token>\n\n ```\n\n#### Example Response\n\n```\nHTTP/1.1 201 Created\nContent-Type: application/json\n[\n  {\n    \"id\": 1,\n    \"description\": \"Tweet 1\",\n    \"created_at\": \"2025-01-12T20:24:00Z\"\n  },\n  {\n    \"id\": 2,\n    \"description\": \"Tweet 2\",\n    \"created_at\": \"2025-01-12T20:25:00Z\"\n  }\n]\n\n ```"
+			},
+			"response": []
+		}
+	]
+}

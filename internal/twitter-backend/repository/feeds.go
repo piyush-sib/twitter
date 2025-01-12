@@ -28,7 +28,13 @@ func (r *FeedsRepository) GetUserFeeds(userID int, sortingType string) ([]*model
 
 	var followersIDs []int
 	// get all followings users first
-	r.db.Table("followers").Select("following_user_id").Where("user_id = ?", userID).Find(&followers)
+	query := r.db.Table("followers").Select("following_user_id").Where("user_id = ?", userID)
+	if sortingType == "desc" {
+		query = query.Order("created_at desc")
+	} else {
+		query = query.Order("created_at asc")
+	}
+	query.Find(&followers)
 
 	for _, v := range followers {
 		followersIDs = append(followersIDs, v.FollowingUserID)
