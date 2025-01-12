@@ -4,6 +4,7 @@ package middleware
 import (
 	"context"
 
+	"github.com/golang-jwt/jwt/v5"
 	"go.uber.org/dig"
 	"net/http"
 	"strings"
@@ -11,7 +12,7 @@ import (
 )
 
 type AuthMiddlewares struct {
-	jwtUtils *utilities.JWTUtils
+	validateJWT func(tokenString string) (jwt.MapClaims, error)
 }
 type AuthMiddlewaresParams struct {
 	dig.In
@@ -21,7 +22,7 @@ type AuthMiddlewaresParams struct {
 
 func NewAuthMiddlewares(params AuthMiddlewaresParams) *AuthMiddlewares {
 	return &AuthMiddlewares{
-		jwtUtils: params.JwtUtils,
+		validateJWT: params.JwtUtils.ValidateJWT,
 	}
 }
 
@@ -46,7 +47,7 @@ func (a *AuthMiddlewares) AuthMiddleware() func(http.Handler) http.Handler {
 			token := parts[1]
 
 			// Validate the token
-			claims, err := a.jwtUtils.ValidateJWT(token)
+			claims, err := a.validateJWT(token)
 			if err != nil {
 				http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
 				return

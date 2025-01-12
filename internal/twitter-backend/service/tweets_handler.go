@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"go.uber.org/dig"
@@ -21,16 +22,18 @@ type TweetsHandlerParams struct {
 	TweetsRepo  *repository.TweetsRepository
 }
 type TweetsHandler struct {
-	authHandler *middleware.AuthMiddlewares
-	logger      *structuredlogger.JSONLogger
-	tweetsRepo  *repository.TweetsRepository
+	getUserFromContext func(ctx context.Context) (userID int, username string, ok bool)
+	logger             func(entry *models.LogEntry, requestTime time.Time)
+	getUserTweets      func(userID int, sortingType string) ([]*models.Tweet, error)
+	postTweets         func(userID int, data string) (*models.Tweet, error)
 }
 
 func NewTweetsHandler(params TweetsHandlerParams) *TweetsHandler {
 	return &TweetsHandler{
-		authHandler: params.AuthHandler,
-		logger:      params.Logger,
-		tweetsRepo:  params.TweetsRepo,
+		getUserFromContext: params.AuthHandler.GetUserFromContext,
+		getUserTweets:      params.TweetsRepo.GetUserTweets,
+		logger:             params.Logger.Log,
+		postTweets:         params.TweetsRepo.PostTweets,
 	}
 }
 
@@ -40,7 +43,7 @@ func (t *TweetsHandler) GetTweets(w http.ResponseWriter, r *http.Request) {
 		HTTPRoute: r.URL.Path,
 		Timestamp: time.Now(),
 	}
-	defer t.logger.Log(log, now)
+	defer t.logger(log, now)
 
 	if r.Method != http.MethodGet {
 		err := errors.New("Invalid request method")
@@ -55,7 +58,7 @@ func (t *TweetsHandler) GetTweets(w http.ResponseWriter, r *http.Request) {
 		feedSortingQuery = "desc"
 	}
 
-	userID, _, ok := t.authHandler.GetUserFromContext(r.Context())
+	userID, _, ok := t.getUserFromContext(r.Context())
 	if !ok {
 		err := errors.New("Failed to retrieve user from context")
 		log.Error = err
@@ -63,7 +66,7 @@ func (t *TweetsHandler) GetTweets(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.UserID = userID
-	userFeed, err := t.tweetsRepo.GetUserTweets(userID, feedSortingQuery)
+	userFeed, err := t.getUserTweets(userID, feedSortingQuery)
 	if err != nil {
 		log.Error = err
 		http.Error(w, "Failed to retrieve user tweets", http.StatusInternalServerError)
@@ -79,7 +82,7 @@ func (t *TweetsHandler) PostTweet(w http.ResponseWriter, r *http.Request) {
 		HTTPRoute: r.URL.Path,
 		Timestamp: time.Now(),
 	}
-	defer t.logger.Log(log, now)
+	defer t.logger(log, now)
 
 	if r.Method != http.MethodPost {
 		err := errors.New("Invalid request method")
@@ -89,7 +92,7 @@ func (t *TweetsHandler) PostTweet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, _, ok := t.authHandler.GetUserFromContext(r.Context())
+	userID, _, ok := t.getUserFromContext(r.Context())
 	if !ok {
 		err := errors.New("Failed to retrieve user from context")
 		log.Error = err
@@ -103,7 +106,7 @@ func (t *TweetsHandler) PostTweet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.UserID = userID
-	finalTweet, err := t.tweetsRepo.PostTweets(userID, tweet.Description)
+	finalTweet, err := t.postTweets(userID, tweet.Description)
 	if err != nil {
 		log.Error = err
 		http.Error(w, "Failed to post tweet", http.StatusInternalServerError)

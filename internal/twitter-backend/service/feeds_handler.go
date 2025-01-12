@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"go.uber.org/dig"
@@ -21,16 +22,16 @@ type FeedHandlerParams struct {
 	Logger      *structuredlogger.JSONLogger
 }
 type FeedHandler struct {
-	authHandler *middleware.AuthMiddlewares
-	feedsRepo   *repository.FeedsRepository
-	logger      *structuredlogger.JSONLogger
+	getUserFromContext func(ctx context.Context) (userID int, username string, ok bool)
+	getUserFeeds       func(userID int, sortingType string) ([]*models.Tweet, error)
+	logger             func(entry *models.LogEntry, requestTime time.Time)
 }
 
 func NewFeedHandler(params FeedHandlerParams) *FeedHandler {
 	return &FeedHandler{
-		authHandler: params.AuthHandler,
-		feedsRepo:   params.FeedsRepo,
-		logger:      params.Logger,
+		getUserFromContext: params.AuthHandler.GetUserFromContext,
+		getUserFeeds:       params.FeedsRepo.GetUserFeeds,
+		logger:             params.Logger.Log,
 	}
 }
 
@@ -40,7 +41,7 @@ func (f *FeedHandler) GetFeeds(w http.ResponseWriter, r *http.Request) {
 		HTTPRoute: r.URL.Path,
 		Timestamp: time.Now(),
 	}
-	defer f.logger.Log(log, now)
+	defer f.logger(log, now)
 
 	if r.Method != http.MethodGet {
 		err := errors.New("Invalid request method")
@@ -55,7 +56,7 @@ func (f *FeedHandler) GetFeeds(w http.ResponseWriter, r *http.Request) {
 		feedSortingQuery = "desc"
 	}
 
-	userID, _, ok := f.authHandler.GetUserFromContext(r.Context())
+	userID, _, ok := f.getUserFromContext(r.Context())
 	if !ok {
 		err := errors.New("Failed to retrieve user from context")
 		log.Error = err
@@ -63,7 +64,7 @@ func (f *FeedHandler) GetFeeds(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.UserID = userID
-	userFeed, err := f.feedsRepo.GetUserFeeds(userID, feedSortingQuery)
+	userFeed, err := f.getUserFeeds(userID, feedSortingQuery)
 	if err != nil {
 		log.Error = err
 		http.Error(w, err.Error(), http.StatusInternalServerError)

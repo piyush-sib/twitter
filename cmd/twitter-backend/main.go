@@ -41,20 +41,3 @@ func main() {
 	}
 
 }
-
-//
-//func gracefulShutdown(closables []Closable) {
-//	// Catch OS signals for termination
-//	sigChan := make(chan os.Signal, 1)
-//	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-//
-//	<-sigChan // Wait for a signal
-//	for _, c := range closables {
-//		if err := c.Close(); err != nil {
-//			// Log the error, ideally you should use your logger here
-//			log.Printf("Failed to close resource: %v", err)
-//		}
-//	}
-//
-//	log.Println("Application shutdown gracefully.")
-//}

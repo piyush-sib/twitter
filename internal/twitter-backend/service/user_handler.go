@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"go.uber.org/dig"
@@ -24,20 +25,26 @@ type UserHandlerParams struct {
 	Logger          *structuredlogger.JSONLogger
 }
 type UserHandler struct {
-	userRepo        *repository.UserRepository
-	jwtUtils        *utilities.JWTUtils
-	passwordUtils   *utilities.PasswordUtils
-	authMiddlewares *middleware.AuthMiddlewares
-	logger          *structuredlogger.JSONLogger
+	generateJWT        func(userID int, name string) (string, error)
+	hashPassword       func(password string) (string, error)
+	checkPasswordHash  func(password, hash string) bool
+	getUserFromContext func(ctx context.Context) (userID int, username string, ok bool)
+	followUserByID     func(followerID int, userID int) (*models.Followers, error)
+	getUserByEmail     func(email string) (*models.User, error)
+	createUser         func(user *models.User) error
+	logger             func(entry *models.LogEntry, requestTime time.Time)
 }
 
 func NewUserHandler(params UserHandlerParams) *UserHandler {
 	return &UserHandler{
-		userRepo:        params.UserRepo,
-		jwtUtils:        params.JwtUtils,
-		passwordUtils:   params.PasswordUtils,
-		logger:          params.Logger,
-		authMiddlewares: params.AuthMiddlewares,
+		generateJWT:        params.JwtUtils.GenerateJWT,
+		hashPassword:       params.PasswordUtils.HashPassword,
+		checkPasswordHash:  params.PasswordUtils.CheckPasswordHash,
+		logger:             params.Logger.Log,
+		getUserFromContext: params.AuthMiddlewares.GetUserFromContext,
+		createUser:         params.UserRepo.CreateUser,
+		getUserByEmail:     params.UserRepo.GetUserByEmail,
+		followUserByID:     params.UserRepo.FollowUserByID,
 	}
 }
 
@@ -47,7 +54,7 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		HTTPRoute: r.URL.Path,
 		Timestamp: time.Now(),
 	}
-	defer h.logger.Log(log, now)
+	defer h.logger(log, now)
 	if r.Method != http.MethodPost {
 		err := errors.New("invalid request method")
 		log.Error = err
@@ -62,7 +69,7 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, err := h.passwordUtils.HashPassword(user.Password)
+	hashedPassword, err := h.hashPassword(user.Password)
 	if err != nil {
 		log.Error = err
 		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
@@ -70,7 +77,7 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	user.Password = hashedPassword
 
-	err = h.userRepo.CreateUser(&user)
+	err = h.createUser(&user)
 	if err != nil {
 		log.Error = err
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
@@ -88,7 +95,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		HTTPRoute: r.URL.Path,
 		Timestamp: time.Now(),
 	}
-	defer h.logger.Log(log, now)
+	defer h.logger(log, now)
 	if r.Method != http.MethodPost {
 		err := errors.New("invalid request method")
 		log.Error = err
@@ -106,15 +113,15 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userRepo.GetUserByEmail(credentials.Email)
-	if err != nil || user == nil || !h.passwordUtils.CheckPasswordHash(credentials.Password, user.Password) {
+	user, err := h.getUserByEmail(credentials.Email)
+	if err != nil || user == nil || !h.checkPasswordHash(credentials.Password, user.Password) {
 		log.Error = err
 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
 	log.UserID = user.ID
 
-	token, err := h.jwtUtils.GenerateJWT(user.ID, user.Name)
+	token, err := h.generateJWT(user.ID, user.Name)
 	if err != nil {
 		log.Error = err
 		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
@@ -130,7 +137,7 @@ func (h *UserHandler) FollowUser(w http.ResponseWriter, r *http.Request) {
 		HTTPRoute: r.URL.Path,
 		Timestamp: time.Now(),
 	}
-	defer h.logger.Log(log, now)
+	defer h.logger(log, now)
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -144,7 +151,7 @@ func (h *UserHandler) FollowUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, _, ok := h.authMiddlewares.GetUserFromContext(r.Context())
+	userID, _, ok := h.getUserFromContext(r.Context())
 	if !ok {
 		err := errors.New("failed to retrieve user from context")
 		log.Error = err
@@ -153,7 +160,7 @@ func (h *UserHandler) FollowUser(w http.ResponseWriter, r *http.Request) {
 	}
 	log.UserID = userID
 
-	_, err := h.userRepo.FollowUserByID(followerData.FollowingUserID, userID)
+	_, err := h.followUserByID(followerData.FollowingUserID, userID)
 	if err != nil {
 		log.Error = err
 		http.Error(w, "Failed to follow user", http.StatusInternalServerError)

@@ -38,17 +38,3 @@ func (m *MySQLSeederHandler) MigrateSchema() {
 		log.Fatalf("Failed to migrate Followers model: %v", err)
 	}
 }
-
-func (m *MySQLSeederHandler) SeedDatabase() {
-	log.Println("Seeding the database with some data only for dev environment")
-	//// Seed the database with some data only for dev environment
-	//users := []models.User{
-	//	{Name: "Piyush Singh", Email: "piyush@example.com", Password: "aspire"},
-	//}
-	//
-	//for _, user := range users {
-	//	if err := m.db.Where(models.User{Email: user.Email}).FirstOrCreate(&user).Error; err != nil {
-	//		log.Printf("Error while seeding the database: %e", err)
-	//	}
-	//}
-}
