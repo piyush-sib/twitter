@@ -1,80 +1,110 @@
-Here’s a README.md file tailored to your project:
+# Twitter Backend API
 
-Twitter Backend API
+This repository contains a simplified backend API for a Twitter-like platform. Users can register, log in, post tweets,
+follow other users, and view tweets in their feed. The project is built with Go, using GORM for database interactions
+and Uber's `dig` for dependency injection.
 
-This repository contains a simplified backend API for a Twitter-like platform. Users can register, log in, post tweets, follow other users, and view tweets in their feed. The project is built with Go, using GORM for database interactions and Uber’s dig for dependency injection.
+---
 
-Features
-•	User Management: Register and log in with secure authentication.
-•	Tweets: Create, retrieve, and manage tweets.
-•	Follow System: Follow other users and view their tweets in your feed.
-•	Authentication: Middleware to secure endpoints using JWT-based authentication.
-•	Extensibility: Built with scalable architecture and dependency injection using Uber’s dig.
-•	Structured Logging: JSON-based logger for monitoring API usage and debugging.
-•	MySQL Integration: Persistent storage for user and tweet data using GORM ORM.
-•	Testing: Unit-tested services and handlers for robust functionality.
+## Features
 
-Getting Started
+- **User Management**: Register and log in with secure authentication.
+- **Tweets**: Create, retrieve, and manage tweets.
+- **Follow System**: Follow other users and view their tweets in your feed.
+- **Authentication**: Middleware to secure endpoints using JWT-based authentication.
+- **Extensibility**: Built with scalable architecture and dependency injection using Uber's `dig`.
+- **Structured Logging**: JSON-based logger for monitoring API usage and debugging.
+- **MySQL Integration**: Persistent storage for user and tweet data using GORM ORM.
+- **Testing**: Unit-tested services and handlers for robust functionality.
 
-Prerequisites
+---
+
+## Getting Started
+
+### Prerequisites
 
 Ensure you have the following installed:
-•	Go 1.19+
-•	Docker and Docker Compose
-•	MySQL Server
 
-Installation
-1.	Clone the repository:
+- Go 1.19+
+- Docker and Docker Compose
+- MySQL Server (it will be started using Docker Compose)
 
-git clone https://github.com/piyush-sib/twitter.git
-cd twitter
+### Installation
 
-	2.	Build and start the application with Docker Compose:
+1. Clone the repository:
 
-docker-compose up --build
+   ```bash
+   git clone https://github.com/piyush-sib/twitter.git
+   cd twitter
+   ```
 
+2. Build and start the application dependencies with Docker Compose:
 
-	3.	Seed the database with dummy data:
+   ```bash
+   docker-compose up --build
+   ```
+3. Now start the application using following command:
+   ```bash
+   make start
+   ```
+4. The API should now be available at `http://localhost:8080`.
 
+---
 
+## API Endpoints
 
-	4.	The API should now be available at http://localhost:8080.
+### Complete API documentation along with sample request and response is available in Twitter.postman_collection.json file in the root directory.
 
-API Endpoints
-Complete API documentation along with sample request and response is available in Twitter.postman_collection.json file.
-You can easily import this collection in your postman
+### You can easily import this file in Postman and test the API.
 
+## Directory Structure
 
-Directory Structure
-
+```plaintext
 .
 ├── cmd/
-│   ├── preseed/          # Pre-seed script for database dummy data
-│   └── server/           # Entry point of the application
-├── configs/              # Configuration files and environment variables
+│   └── twitter-backed/                    # Entry point of the application
 ├── internal/
-│   ├── models/           # GORM models for database tables
-│   ├── repository/       # Database interaction logic
-│   ├── service/          # Business logic and API handlers
-│   ├── middlewares/      # Authentication and request-handling middlewares
-│   └── structuredlogger/ # JSON-based logger
-├── tests/                # Unit tests for services and handlers
-├── Dockerfile            # Dockerfile for containerization
-├── docker-compose.yml    # Docker Compose setup
-└── README.md             # Project documentation
+│   ├── models/                            # GORM models for database tables
+│   ├── twitter-backend->repository/       # Database interaction logic
+│   ├── twitter-backend->service/          # Business logic and API handlers
+│   ├── twitter-backend->utilities/        # Common utilities functions (e.g., password-hashing, jwt etc)
+│   ├── twitter-backend->middlewares/      # Middleware logic (Authentication etc)
+│   ├── infrastructure/                    # Infra clients (mysql)
+│   └── structuredlogger/                  # JSON-based logger
+├── Dockerfile                             # Dockerfile for containerization
+├── docker-compose.yml                     # Docker Compose setup
+└── README.md                              # Project documentation
+└── Twitter.postman_collection.json        # API postman collection
+```
 
-Testing
+---
+
+## Testing
 
 Run tests using the following command:
 
+```bash
 make test
+```
 
-Future Improvements
-•	Add WebSocket support for real-time updates (e.g., notifications).
-•	Implement pagination for large tweet and feed responses.
-•	Add support for media attachments in tweets.
-•	Improve test coverage with integration and end-to-end tests.
-•	Add caching with Redis to improve feed performance.
+---
 
+## Future Improvements
 
-Let me know if you’d like any modifications! 🚀
+- Add WebSocket support for real-time updates (e.g., notifications).
+- Implement pagination for large tweet and feed responses.
+- Add support for media attachments in tweets.
+- Improve test coverage with integration and end-to-end tests.
+- Add caching with Redis to improve feed performance.
+
+---
+
+## Contributing
+
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature-name`).
+3. Commit your changes (`git commit -m 'Add feature name'`).
+4. Push to the branch (`git push origin feature-name`).
+5. Open a Pull Request.
+
+---

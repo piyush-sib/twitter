@@ -12,3 +12,7 @@ test:
 	go tool cover -func=coverage.out -o=coverage.txt
 	cat coverage.txt
 	go tool cover -html=coverage.out -o=coverage.html
+
+.PHONY: start
+start:  build
+	./build/twitter-backend -structured-log-file=./log -environment=testing
