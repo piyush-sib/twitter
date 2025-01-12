@@ -2,11 +2,10 @@ package structuredlogger
 
 import (
 	"encoding/json"
+	"go.uber.org/dig"
 	"log"
 	"os"
 	"time"
-
-	"go.uber.org/dig"
 	"twitter/internal/closer"
 	"twitter/internal/models"
 )
@@ -40,36 +39,9 @@ func NewStructuredLogger(flg flagVal) (*JSONLogger, closer.CloserResult, error) 
 	}, closer.CloserResult{Close: cl}, nil
 }
 
-// Info logs an informational message.
-func (l *JSONLogger) Info(message string, data any) {
-	l.log(models.LevelInfo, message, nil, data)
-}
-
-// Warn logs a warning message.
-func (l *JSONLogger) Warn(message string, data any) {
-	l.log(models.LevelWarn, message, nil, data)
-}
-
-// Error logs an error message.
-func (l *JSONLogger) Error(message string, err error, data any) {
-	l.log(models.LevelError, message, err, data)
-}
-
-// log creates and writes a structured log entry.
-func (l *JSONLogger) log(level models.LogLevel, message string, err error, data any) {
-	entry := models.LogEntry{
-		Level:     level,
-		Timestamp: time.Now(),
-		Message:   message,
-	}
-
-	if err != nil {
-		entry.Error = err.Error()
-	}
-	if data != nil {
-		entry.Data = data
-	}
-
+// Log creates and writes a structured log entry to file for debugging later any request.
+func (l *JSONLogger) Log(entry *models.LogEntry, requestTime time.Time) {
+	entry.TimeProcessing = int(time.Now().Sub(requestTime).Nanoseconds() / 1e6)
 	jsonData, jsonErr := json.Marshal(entry)
 	if jsonErr != nil {
 		// Fallback to default logging in case of a marshaling failure

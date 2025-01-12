@@ -2,9 +2,13 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 	"go.uber.org/dig"
 	"net/http"
+	"time"
+	"twitter/internal/models"
 
+	"twitter/internal/structuredlogger"
 	"twitter/internal/twitter-backend/middlewares"
 	"twitter/internal/twitter-backend/repository"
 )
@@ -14,24 +18,37 @@ type FeedHandlerParams struct {
 
 	AuthHandler *middleware.AuthMiddlewares
 	FeedsRepo   *repository.FeedsRepository
+	Logger      *structuredlogger.JSONLogger
 }
 type FeedHandler struct {
 	authHandler *middleware.AuthMiddlewares
 	feedsRepo   *repository.FeedsRepository
+	logger      *structuredlogger.JSONLogger
 }
 
 func NewFeedHandler(params FeedHandlerParams) *FeedHandler {
 	return &FeedHandler{
 		authHandler: params.AuthHandler,
 		feedsRepo:   params.FeedsRepo,
+		logger:      params.Logger,
 	}
 }
 
 func (f *FeedHandler) GetFeeds(w http.ResponseWriter, r *http.Request) {
+	now := time.Now()
+	log := &models.LogEntry{
+		HTTPRoute: r.URL.Path,
+		Timestamp: time.Now(),
+	}
+	defer f.logger.Log(log, now)
+
 	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		err := errors.New("Invalid request method")
+		log.Error = err
+		http.Error(w, err.Error(), http.StatusMethodNotAllowed)
 		return
 	}
+
 	feedSortingQuery := "asc"
 	feedSort := r.URL.Query().Get("sort")
 	if feedSort == "desc" {
@@ -40,12 +57,16 @@ func (f *FeedHandler) GetFeeds(w http.ResponseWriter, r *http.Request) {
 
 	userID, _, ok := f.authHandler.GetUserFromContext(r.Context())
 	if !ok {
-		http.Error(w, "Failed to retrieve user from context", http.StatusInternalServerError)
+		err := errors.New("Failed to retrieve user from context")
+		log.Error = err
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	log.UserID = userID
 	userFeed, err := f.feedsRepo.GetUserFeeds(userID, feedSortingQuery)
 	if err != nil {
-		http.Error(w, "Failed to retrieve user feeds", http.StatusInternalServerError)
+		log.Error = err
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
